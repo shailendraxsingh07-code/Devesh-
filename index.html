@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Krishna Soda Point</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family: Arial; background:#f5f5f5; }
+
+header {
+    background:#e23744;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container { padding:15px; }
+
+.card {
+    background:white;
+    border-radius:12px;
+    margin-bottom:15px;
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width:100%;
+    height:150px;
+    object-fit:cover;
+}
+
+.card-content {
+    padding:15px;
+}
+
+.price {
+    color:#e23744;
+    font-weight:bold;
+}
+
+button {
+    width:100%;
+    padding:10px;
+    background:#e23744;
+    color:white;
+    border:none;
+    border-radius:6px;
+    margin-top:10px;
+}
+
+.cart, .history {
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+}
+
+input, select {
+    width:100%;
+    padding:8px;
+    margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Krishna Soda Point</h1>
+<p>⭐ 4.5 | 🚚 1 Hour Delivery</p>
+</header>
+
+<div class="container">
+
+<!-- ITEMS -->
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1582450871972-ab5ca641643d">
+<div class="card-content">
+<h3>Lemon Soda</h3>
+<p class="price">₹20</p>
+<button onclick="add('Lemon Soda',20)">Add</button>
+</div>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1629203851122-3726ecdf080e">
+<div class="card-content">
+<h3>Orange Soda</h3>
+<p class="price">₹25</p>
+<button onclick="add('Orange Soda',25)">Add</button>
+</div>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1551024709-8f23befc6c43">
+<div class="card-content">
+<h3>Masala Soda</h3>
+<p class="price">₹30</p>
+<button onclick="add('Masala Soda',30)">Add</button>
+</div>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1596803244618-8dbee441d70b">
+<div class="card-content">
+<h3>Cold Drink</h3>
+<p class="price">₹40</p>
+<button onclick="add('Cold Drink',40)">Add</button>
+</div>
+</div>
+
+<!-- CART -->
+
+<div class="cart">
+<h3>🛒 Cart</h3>
+<div id="cartItems"></div>
+
+<input type="text" id="coupon" placeholder="Coupon: WELCOME20">
+<button onclick="applyCoupon()">Apply Coupon</button>
+
+<h3>Total: ₹<span id="total">0</span></h3>
+
+<input type="text" id="address" placeholder="Enter Address">
+
+<select id="payment">
+<option>Cash on Delivery</option>
+<option>UPI Payment</option>
+</select>
+
+<button onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- HISTORY -->
+
+<div class="history">
+<h3>📋 Order History</h3>
+<div id="historyList"></div>
+</div>
+
+</div>
+
+<script>
+var total = 0;
+var items = [];
+var discountApplied = false;
+
+function add(item, price){
+    total += price;
+    items.push(item);
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("cartItems").innerHTML += item + "<br>";
+}
+
+function applyCoupon(){
+    var code = document.getElementById("coupon").value;
+
+    if(code === "WELCOME20" && !discountApplied){
+        total -= 10;
+        discountApplied = true;
+        alert("₹10 Discount Applied");
+    } else {
+        alert("Invalid or Used");
+    }
+
+    document.getElementById("total").innerText = total;
+}
+
+function placeOrder(){
+    var address = document.getElementById("address").value;
+    var payment = document.getElementById("payment").value;
+
+    if(items.length === 0){
+        alert("Cart empty!");
+        return;
+    }
+
+    if(address === ""){
+        alert("Enter address!");
+        return;
+    }
+
+    var order = {
+        items: items.join(", "),
+        total: total,
+        time: new Date().toLocaleString()
+    };
+
+    var history = JSON.parse(localStorage.getItem("orders")) || [];
+    history.push(order);
+    localStorage.setItem("orders", JSON.stringify(history));
+
+    showHistory();
+
+    var msg = "Order:%0AItems: " + order.items +
+              "%0ATotal: ₹" + total +
+              "%0APayment: " + payment +
+              "%0AAddress: " + address;
+
+    window.open("https://wa.me/917974727710?text=" + msg);
+
+    alert("Order Placed!");
+
+    // reset
+    total = 0;
+    items = [];
+    document.getElementById("cartItems").innerHTML = "";
+    document.getElementById("total").innerText = 0;
+}
+
+function showHistory(){
+    var history = JSON.parse(localStorage.getItem("orders")) || "";
+    var html = "";
+
+    history.forEach(function(o){
+        html += "<p>🧾 " + o.items + "<br>₹" + o.total + "<br>" + o.time + "</p><hr>";
+    });
+
+    document.getElementById("historyList").innerHTML = html;
+}
+
+showHistory();
+</script>
+
+</body>
+</html>
